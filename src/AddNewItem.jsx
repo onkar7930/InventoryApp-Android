@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from './supabaseClient'
 import imageCompression from 'browser-image-compression'
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
 
 export default function AddNewItem({ session }) {
     const navigate = useNavigate()
@@ -15,14 +16,34 @@ export default function AddNewItem({ session }) {
     const [imagePreviews, setImagePreviews] = useState([])
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const handleAddImage = (e) => {
-        if (e.target.files) {
-            const files = Array.from(e.target.files)
-            setImageFiles([...imageFiles, ...files])
-            const previews = files.map(file => URL.createObjectURL(file))
-            setImagePreviews([...imagePreviews, ...previews])
+    const selectImage = async () => {
+        try {
+            const image = await Camera.getPhoto({
+                quality: 90,
+                allowEditing: false,
+                resultType: CameraResultType.Uri,
+                source: CameraSource.Prompt, // Prompt to choose between camera and gallery
+                promptLabelHeader: 'Select Image',
+                promptLabelPhoto: 'Choose from Gallery',
+                promptLabelPicture: 'Take a Photo'
+            });
+
+            if (image.webPath) {
+                // Convert webPath to a File object
+                const response = await fetch(image.webPath);
+                const blob = await response.blob();
+                const file = new File([blob], `image_${Date.now()}.${image.format}`, { type: `image/${image.format}` });
+
+                // Update state with the new file and preview
+                setImageFiles(prevFiles => [...prevFiles, file]);
+                setImagePreviews(prevPreviews => [...prevPreviews, image.webPath]);
+            }
+        } catch (error) {
+            // Handle error (e.g., user cancelled)
+            console.error("Error selecting image:", error);
         }
-    }
+    };
+
 
     const removeImage = (index) => {
         const newFiles = [...imageFiles]; newFiles.splice(index, 1);
@@ -90,10 +111,9 @@ export default function AddNewItem({ session }) {
                                 <button type="button" onClick={() => removeImage(idx)} style={{ position: 'absolute', top: '-8px', right: '-8px', background: 'var(--danger)', color: 'white', width: '22px', height: '22px', borderRadius: '50%', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
                             </div>
                         ))}
-                        <div onClick={() => document.getElementById('photo-input').click()} style={{ width: '80px', height: '80px', background: '#E0E7FF', border: '2px dashed var(--primary)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer' }}>
+                        <div onClick={selectImage} style={{ width: '80px', height: '80px', background: '#E0E7FF', border: '2px dashed var(--primary)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer' }}>
                             <span style={{ fontSize: '28px', color: 'var(--primary)' }}>+</span>
                         </div>
-                        <input id="photo-input" type="file" accept="image/*" onChange={handleAddImage} style={{ display: 'none' }} />
                     </div>
                 </div>
 

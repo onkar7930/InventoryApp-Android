@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from './supabaseClient'
 import imageCompression from 'browser-image-compression'
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
 
 export default function ItemDetails({ session }) {
     const { id } = useParams()
@@ -35,14 +36,30 @@ export default function ItemDetails({ session }) {
         setLoading(false)
     }
 
-    const handleAddImage = (e) => {
-        if (e.target.files) {
-            const files = Array.from(e.target.files)
-            setNewImageFiles([...newImageFiles, ...files])
-            const previews = files.map(f => URL.createObjectURL(f))
-            setNewImagePreviews([...newImagePreviews, ...previews])
+    const selectImage = async () => {
+        try {
+            const image = await Camera.getPhoto({
+                quality: 90,
+                allowEditing: false,
+                resultType: CameraResultType.Uri,
+                source: CameraSource.Prompt,
+                promptLabelHeader: 'Select Image',
+                promptLabelPhoto: 'Choose from Gallery',
+                promptLabelPicture: 'Take a Photo'
+            });
+
+            if (image.webPath) {
+                const response = await fetch(image.webPath);
+                const blob = await response.blob();
+                const file = new File([blob], `image_${Date.now()}.${image.format}`, { type: `image/${image.format}` });
+
+                setNewImageFiles(prevFiles => [...prevFiles, file]);
+                setNewImagePreviews(prevPreviews => [...prevPreviews, image.webPath]);
+            }
+        } catch (error) {
+            console.error("Error selecting image:", error);
         }
-    }
+    };
 
     // Handle clicking the "X" on an old image
     const handleRemoveExistingImage = (idxToRemove) => {
@@ -161,10 +178,9 @@ export default function ItemDetails({ session }) {
                                     }} style={{ position: 'absolute', top: '-8px', right: '-8px', background: 'var(--danger)', color: 'white', width: '22px', height: '22px', borderRadius: '50%', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
                                 </div>
                             ))}
-                            <div onClick={() => document.getElementById('edit-photo-input').click()} style={{ width: '80px', height: '80px', background: '#E0E7FF', border: '2px dashed var(--primary)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer' }}>
+                            <div onClick={selectImage} style={{ width: '80px', height: '80px', background: '#E0E7FF', border: '2px dashed var(--primary)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer' }}>
                                 <span style={{ fontSize: '28px', color: 'var(--primary)' }}>+</span>
                             </div>
-                            <input id="edit-photo-input" type="file" accept="image/*" onChange={handleAddImage} style={{ display: 'none' }} />
                         </div>
                     </div>
 
