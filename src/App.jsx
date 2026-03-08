@@ -22,8 +22,40 @@ function Header({ session }) {
 
   return (
     <header className="app-header">
-      <h3 onClick={() => navigate('/')}>🏪 {shopName}</h3>
-      <button onClick={() => navigate('/')} style={{ background: 'rgba(255,255,255,0.2)', padding: '6px 12px', fontSize: '14px' }}>
+      {/* Upgraded Shop Brand Area */}
+      <div
+        style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+        onClick={() => navigate('/')}
+      >
+        <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '8px', padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <span style={{ fontSize: '18px' }}>🏪</span>
+        </div>
+        <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, letterSpacing: '0.5px' }}>
+          {shopName}
+        </h3>
+      </div>
+
+      {/* Upgraded High-Contrast Home Button */}
+      <button
+        onClick={() => navigate('/')}
+        style={{
+          background: 'var(--surface)',
+          color: 'var(--primary)',
+          padding: '8px 16px',
+          fontSize: '14px',
+          borderRadius: '24px',
+          fontWeight: 700,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+          border: 'none'
+        }}
+      >
+        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
         Home
       </button>
     </header>
