@@ -21,6 +21,8 @@ export default function ItemDetails({ session }) {
     const [newImagePreviews, setNewImagePreviews] = useState([])
     const [isSaving, setIsSaving] = useState(false)
 
+    const [fullScreenImage, setFullScreenImage] = useState(null)
+
     useEffect(() => { fetchItem() }, [id])
 
     const fetchItem = async () => {
@@ -162,7 +164,7 @@ export default function ItemDetails({ session }) {
                             <div onClick={() => document.getElementById('edit-photo-input').click()} style={{ width: '80px', height: '80px', background: '#E0E7FF', border: '2px dashed var(--primary)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer' }}>
                                 <span style={{ fontSize: '28px', color: 'var(--primary)' }}>+</span>
                             </div>
-                            <input id="edit-photo-input" type="file" accept="image/*" capture="environment" multiple onChange={handleAddImage} style={{ display: 'none' }} />
+                            <input id="edit-photo-input" type="file" accept="image/*" onChange={handleAddImage} style={{ display: 'none' }} />
                         </div>
                     </div>
 
@@ -185,7 +187,13 @@ export default function ItemDetails({ session }) {
                     {item.image_urls && item.image_urls.length > 0 ? (
                         <div className="image-scroll-container" style={{ display: 'flex', gap: '15px', overflowX: 'auto', paddingBottom: '10px' }}>
                             {item.image_urls.map((url, idx) => (
-                                <img key={idx} src={url} alt="Item" style={{ width: '250px', height: '250px', objectFit: 'cover', borderRadius: '12px', flexShrink: 0, boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }} />
+                                <img
+                                    key={idx}
+                                    src={url}
+                                    alt="Item"
+                                    onClick={() => setFullScreenImage(url)}
+                                    style={{ width: '250px', height: '250px', objectFit: 'cover', borderRadius: '12px', flexShrink: 0, boxShadow: '0 4px 6px rgba(0,0,0,0.05)', cursor: 'pointer' }}
+                                />
                             ))}
                         </div>
                     ) : (<div style={{ height: '150px', background: 'var(--border)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>No Photos</div>)}
@@ -209,6 +217,25 @@ export default function ItemDetails({ session }) {
                             <p style={{ margin: 0, padding: '15px', background: '#F0FDF4', borderLeft: '4px solid var(--success)', borderRadius: '0 8px 8px 0', color: 'var(--text-main)', lineHeight: '1.5' }}>{item.comments}</p>
                         </div>
                     )}
+                </div>
+            )}
+            {/* FULL SCREEN IMAGE OVERLAY */}
+            {fullScreenImage && (
+                <div
+                    onClick={() => setFullScreenImage(null)}
+                    style={{
+                        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                        backgroundColor: 'rgba(0,0,0,0.95)', zIndex: 9999,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}
+                >
+                    <button
+                        onClick={() => setFullScreenImage(null)}
+                        style={{ position: 'absolute', top: '20px', right: '20px', background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none', borderRadius: '50%', width: '40px', height: '40px', fontSize: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                    >
+                        ✕
+                    </button>
+                    <img src={fullScreenImage} alt="Fullscreen" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
                 </div>
             )}
         </div>

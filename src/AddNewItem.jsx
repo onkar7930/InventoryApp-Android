@@ -93,7 +93,7 @@ export default function AddNewItem({ session }) {
                         <div onClick={() => document.getElementById('photo-input').click()} style={{ width: '80px', height: '80px', background: '#E0E7FF', border: '2px dashed var(--primary)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer' }}>
                             <span style={{ fontSize: '28px', color: 'var(--primary)' }}>+</span>
                         </div>
-                        <input id="photo-input" type="file" accept="image/*" capture="environment" multiple onChange={handleAddImage} style={{ display: 'none' }} />
+                        <input id="photo-input" type="file" accept="image/*" onChange={handleAddImage} style={{ display: 'none' }} />
                     </div>
                 </div>
 
